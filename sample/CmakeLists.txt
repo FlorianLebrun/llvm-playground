@@ -1,0 +1,49 @@
+set(target sample)
+
+set(files main.cpp)
+
+add_executable(${target} WIN32 ${files})
+set_target_properties(${target} PROPERTIES FOLDER "My")
+target_link_options(${target} PRIVATE /SUBSYSTEM:CONSOLE)
+
+set(LLVM_RT_LINKS 
+  LLVMCore
+  LLVMExecutionEngine
+  LLVMInterpreter
+  LLVMMC
+  LLVMMCJIT
+  LLVMSupport
+  LLVMX86CodeGen
+  LLVMX86Desc
+  LLVMX86Info
+  LLVMExecutionEngine
+  LLVMRuntimeDyld
+  LLVMMCDisassembler
+  LLVMAsmPrinter
+  LLVMDebugInfoDWARF
+  LLVMCFGuard
+  LLVMGlobalISel
+  LLVMSelectionDAG
+  LLVMCodeGen
+  LLVMTarget
+  LLVMBitWriter
+  LLVMScalarOpts
+  LLVMAggressiveInstCombine
+  LLVMInstCombine
+  LLVMTransformUtils
+  LLVMAnalysis
+  LLVMObject
+  LLVMBitReader
+  LLVMMCParser
+  LLVMMC
+  LLVMDebugInfoCodeView
+  LLVMDebugInfoMSF
+  LLVMTextAPI
+  LLVMProfileData
+  LLVMCore
+  LLVMBinaryFormat
+  LLVMRemarks
+  LLVMBitstreamReader
+  LLVMSupport
+)
+target_link_libraries(${target} PRIVATE ${LLVM_RT_LINKS})
