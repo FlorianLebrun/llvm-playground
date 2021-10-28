@@ -1,0 +1,9 @@
+{
+    "name": "llvm-playground",
+    "version": "0.0.0",
+    "license": "MIT",
+    "devDependencies": {
+        "script.cmake": "https://github.com/FlorianLebrun/script.cmake.git",
+        "llvm-jit": "../llvm-prebuild-package/.output/llvm-jit"
+    }
+}

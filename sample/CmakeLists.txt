@@ -1,49 +1,12 @@
-set(target sample)
+set(target "sample")
 
-set(files main.cpp)
+append_group_sources(files FILTER "*.c|*.cpp|*.h|*.hpp" DIRECTORIES "./")
+# list(APPEND files "d:/dump/test.obj")
 
 add_executable(${target} WIN32 ${files})
-set_target_properties(${target} PROPERTIES FOLDER "My")
-target_link_options(${target} PRIVATE /SUBSYSTEM:CONSOLE)
+set_target_properties(${target} PROPERTIES FOLDER "Sample")
 
-set(LLVM_RT_LINKS 
-  LLVMCore
-  LLVMExecutionEngine
-  LLVMInterpreter
-  LLVMMC
-  LLVMMCJIT
-  LLVMSupport
-  LLVMX86CodeGen
-  LLVMX86Desc
-  LLVMX86Info
-  LLVMExecutionEngine
-  LLVMRuntimeDyld
-  LLVMMCDisassembler
-  LLVMAsmPrinter
-  LLVMDebugInfoDWARF
-  LLVMCFGuard
-  LLVMGlobalISel
-  LLVMSelectionDAG
-  LLVMCodeGen
-  LLVMTarget
-  LLVMBitWriter
-  LLVMScalarOpts
-  LLVMAggressiveInstCombine
-  LLVMInstCombine
-  LLVMTransformUtils
-  LLVMAnalysis
-  LLVMObject
-  LLVMBitReader
-  LLVMMCParser
-  LLVMMC
-  LLVMDebugInfoCodeView
-  LLVMDebugInfoMSF
-  LLVMTextAPI
-  LLVMProfileData
-  LLVMCore
-  LLVMBinaryFormat
-  LLVMRemarks
-  LLVMBitstreamReader
-  LLVMSupport
-)
-target_link_libraries(${target} PRIVATE ${LLVM_RT_LINKS})
+target_precompile_headers(${target} PRIVATE "headers.h")
+
+target_link_options(${target} PRIVATE /SUBSYSTEM:CONSOLE)
+target_link_libraries(${target} PRIVATE llvm-jit Ntdll.lib)

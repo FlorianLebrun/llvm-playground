@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+include(./cmake-toolkit.cmake)
 
 project(LLVMPlayground
   LANGUAGES CXX CSharp
@@ -6,7 +7,8 @@ project(LLVMPlayground
 )
 set(CMAKE_CXX_STANDARD 17)
 
-include(.tools/sources.cmake)
+# Find used package
+find_package(llvm-jit REQUIRED PATHS "${CMAKE_SOURCE_DIR}/node_modules/llvm-jit")
 
-add_subdirectory(llvm)
+# Add own library
 add_subdirectory(sample)
