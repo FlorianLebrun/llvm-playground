@@ -5,7 +5,6 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/JITEventListener.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/Object/SymbolSize.h>
@@ -48,11 +47,17 @@
 
 #include <llvm/IRReader/IRReader.h>
 
+#include <llvm/Support/SmallVectorMemoryBuffer.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Object/COFF.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include <windows.h>
 #include <winnt.h>
@@ -62,3 +67,12 @@
 #include <stdio.h>
 #include <winternl.h>
 #include <winnt.h>
+
+
+using namespace llvm;
+using namespace llvm::orc;
+
+void printObject(const llvm::object::ObjectFile& Object, const llvm::RuntimeDyld::LoadedObjectInfo* LOS = 0);
+void printStack();
+
+extern llvm::ExitOnError ExitOnErr;

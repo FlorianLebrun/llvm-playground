@@ -1,12 +1,17 @@
 set(target "sample")
 
-append_group_sources(files FILTER "*.c|*.cpp|*.h|*.hpp" DIRECTORIES "./")
+append_group_sources(files FILTER "*.c|*.cpp|*.h|*.hpp" ROOT "./src" DIRECTORIES 
+"./"
+"./ExecutionEngine"
+"./ModuleManager"
+)
 # list(APPEND files "d:/dump/test.obj")
 
 add_executable(${target} WIN32 ${files})
 set_target_properties(${target} PROPERTIES FOLDER "Sample")
 
-target_precompile_headers(${target} PRIVATE "headers.h")
+target_precompile_headers(${target} PRIVATE "./src/headers.h")
+target_include_directories(${target} PUBLIC "./src")
 
 target_link_options(${target} PRIVATE /SUBSYSTEM:CONSOLE)
 target_link_libraries(${target} PRIVATE llvm-jit Ntdll.lib)

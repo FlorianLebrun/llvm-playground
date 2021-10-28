@@ -1,5 +1,6 @@
+#include "headers.h"
+#include "../ModuleManager/ModuleManager.h"
 
-#include "./headers.h"
 #include <Psapi.h>
 #include <dbghelp.h>
 
@@ -210,10 +211,29 @@ ThreadSafeModule createDemoModule() {
 }
 )";
 
-ThreadSafeModule createDemoModule(LLJIT* J) {
+void createDemoModule(Module& M) {
+
+   auto Builder = std::make_unique<IRBuilder<>>(M.getContext());
+   auto DBuilder = std::make_unique<DIBuilder>(M);
+
+   DIFile* DUnit = DBuilder->createFile("test.txt", "d:/sources", NoneType::None, sourceFile);
+   DBuilder->createCompileUnit(dwarf::DW_LANG_C, DUnit, "Kaleidoscope Compiler", 0, "", 0);
+
+   CreateFibFunction("fib2", &M, Builder.get(), DBuilder.get(), DUnit, M.getContext());
+   CreateFibFunction("fib", &M, Builder.get(), DBuilder.get(), DUnit, M.getContext());
+
+   DBuilder->finalize();
+}
+
+ThreadSafeModule createDemoJITModule(LLJIT* J) {
    auto Context = std::make_unique<LLVMContext>();
    auto M = std::make_unique<Module>("test", *Context);
-   //M->addModuleFlag(llvm::Module::Warning, "CodeView", 1);
+
+   bool useCodeView = 0;
+   if (useCodeView) {
+      M->setTargetTriple(J->getTargetTriple().str());
+      M->addModuleFlag(llvm::Module::Warning, "CodeView", 1);
+   }
 
    auto Builder = std::make_unique<IRBuilder<>>(*Context);
    auto DBuilder = std::make_unique<DIBuilder>(*M);
@@ -221,7 +241,7 @@ ThreadSafeModule createDemoModule(LLJIT* J) {
    DIFile* DUnit = DBuilder->createFile("test.txt", "d:/sources", NoneType::None, sourceFile);
    DBuilder->createCompileUnit(dwarf::DW_LANG_C, DUnit, "Kaleidoscope Compiler", 0, "", 0);
 
-   //CreateFibFunction("fib2", M.get(), Builder.get(), DBuilder.get(), DUnit, *Context);
+   CreateFibFunction("fib2", M.get(), Builder.get(), DBuilder.get(), DUnit, *Context);
    CreateFibFunction("fib", M.get(), Builder.get(), DBuilder.get(), DUnit, *Context);
 
    DBuilder->finalize();
