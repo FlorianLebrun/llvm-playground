@@ -59,11 +59,10 @@ std::unique_ptr<MemoryBuffer> ModuleManager::makeModule(std::unique_ptr<ManagedM
    delete context;
    if (!objMem) return 0;
 
-   std::ofstream("d:/obj2.o", std::ios::out).write(objMem->getBufferStart(), objMem->getBufferSize());
-
+   /*std::ofstream("d:/obj2.o", std::ios::out).write(objMem->getBufferStart(), objMem->getBufferSize());
    auto obj = object::ObjectFile::createObjectFile((objMem)->getMemBufferRef());
    if (!obj) return 0;
-   printObject(*obj->get());
+   printObject(*obj->get());*/
 
    return std::move(objMem);
 }

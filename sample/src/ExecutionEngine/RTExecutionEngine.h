@@ -29,32 +29,6 @@ public:
       return MemMgr->needsToReserveAllocationSpace();
    }
    virtual void registerEHFrames(uint8_t* Addr, uint64_t LoadAddr, size_t Size) override {
-      struct tCIEField {
-         uint32_t Length;// 	4 bytes	Total length of the CIE except this field
-         uint32_t CIE_id;// 	4 or 8 bytes	0 for .eh_frame
-         uint8_t Version;// 	1 byte	Value 1
-         uint8_t Augmentation[3];// 	A null-terminated UTF-8 string	0 if no augmetation
-         uint8_t CodeAlignmentFactor;// 	unsigned LEB128	Usually 1
-         uint8_t DataAlignmentFactor;// 	signed LEB128	Usually -4 (encoded as 0x7C)
-         uint8_t ReturnAddressRegister;// 	unsigned LEB128	Dwarf number of the return register
-         uint8_t AugmentationDataLength;// 	unsigned LEB128	Present if Augmentation has �z�
-         uint8_t InitialInstructions;//	array of bytes	Dwarf Call Frame Instructions
-      };
-      struct tFDEField {
-         uint32_t Length;// 	4 bytes	Total length of the FDE except this field; 0 means end of all records
-         uint32_t CIE_pointer;// 	4 or 8 bytes	Distance to the nearest preceding(parent) CIE
-         uint32_t InitialLocation;// 	various bytes	Reference to the function corresponding to the FDE
-         uint32_t RangeLength;// 	various bytes	Size of the function corresponding to the FDE
-         uint8_t AugmentationDataLength;// 	unsigned LEB128	Present if CIE Augmentation is non - empty
-         uint32_t Instructions;//	array of bytes	Dwarf Call Frame Instructions
-      };
-      uint8_t* bytes = (uint8_t*)Addr;
-      tCIEField* cie = (tCIEField*)bytes; bytes += cie->Length;
-      tFDEField* fde = (tFDEField*)bytes; bytes += fde->Length;
-      /*if (!RtlAddFunctionTable(PRUNTIME_FUNCTION(Addr), 1, DWORD64(LoadAddr))) {
-         printf("EH frame mis registered !!!\n");
-      }*/
-      printf("registerEHFrames [%p - %d]: %p\n", LoadAddr, Size, Addr);
       return MemMgr->registerEHFrames(Addr, LoadAddr, Size);
    }
    virtual void deregisterEHFrames() override {
@@ -73,13 +47,6 @@ class RTEHFrameRegister : public JITEventListener {
    virtual void notifyObjectLoaded(ObjectKey K, const object::ObjectFile& Object,
       const RuntimeDyld::LoadedObjectInfo& LOS) {
 
-      auto m = Object.getMemoryBufferRef();
-      std::ofstream("d:/obj1.o", std::ios::out).write(m.getBufferStart(), m.getBufferSize());
-
-
-      if (!LOS.getObjectForDebug(Object).getBinary()) {
-         printf("> debug info missing !!!\n");
-      }
       printObject(Object, &LOS);
 
       // Register COFF EH frames data
@@ -103,21 +70,6 @@ class RTEHFrameRegister : public JITEventListener {
          printf("eh_frame [%p - %p]: %p\n", RangeBase, RangeEnd, EHFrameTable);
          if (!RtlAddFunctionTable(&EHFrameTable[0], 2, RangeBase)) {
             printf("EH frame mis registered !!!\n");
-         }
-      }
-
-      auto symbols = object::computeSymbolSizes(Object);
-      for (const auto& sym_kv : symbols) {
-         auto sym = sym_kv.first;
-         auto lSection = *ExitOnErr(sym.getSection());
-         //         printf("symbols '%s': %p [%d bytes @%p]\n", sym.getName()->data(), LOS.getSectionLoadAddress(lSection), lSection.getSize(), lSection.getRawDataRefImpl());
-         if (sym.getType().get() != object::SymbolRef::ST_Function) continue;
-         auto BaseAddr = LOS.getSectionLoadAddress(*sym.getSection().get());
-         auto Addr = sym.getAddress().get();
-         auto Size = sym_kv.second;
-         if (!SymAddSymbol(GetCurrentProcess(), (ULONG64)BaseAddr, sym.getName().get().data(),
-            (DWORD64)Addr, (DWORD)Size, 0)) {
-            printf("WARNING: failed to insert function name '%s' into debug info: %lu\n", sym.getName().get().data(), GetLastError());
          }
       }
    }
